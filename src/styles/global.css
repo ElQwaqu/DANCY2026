@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ * Change a colour here and every utility that uses it updates, e.g.
+ * bg-ivory, text-charcoal, border-champagne, text-gold-deep, fill-sage.
+ * Contrast (WCAG AA needs 4.5:1). charcoal, charcoal-soft, gold-deep, rose-deep
+ * and sage-deep all pass on ivory, cream and blush.
+ * champagne, rose and sage are for lines and decoration only, not text.
+ */
+@theme {
+  /* Backgrounds */
+  --color-ivory: #fbf7f0;
+  --color-cream: #f4ecdf;
+  --color-blush: #f3dfdc;
+
+  /* Accents */
+  --color-champagne: #c9a96e;
+  --color-champagne-light: #e6d5b3;
+  --color-gold-deep: #7d5f28;
+  --color-rose: #b77b82;
+  --color-rose-deep: #8e4f58;
+  --color-sage: #9caf88;
+  --color-sage-deep: #58694b;
+
+  /* Text */
+  --color-charcoal: #2e2b2a;
+  --color-charcoal-soft: #5a5451;
+
+  /* Fonts (loaded by the Astro Fonts API, see astro.config.mjs) */
+  --font-script: var(--font-great-vibes);
+  --font-serif: var(--font-cormorant);
+  --font-sans: var(--font-lato);
+
+  /* Motion */
+  --ease-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-menu-in: menu-in 0.35s var(--ease-gentle);
+
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Keeps section headings clear of the sticky menu when jumping to them. */
+    scroll-padding-top: 4rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-charcoal antialiased;
+    line-height: 1.7;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif font-medium text-charcoal;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-gold-deep;
+  }
+
+  ::selection {
+    @apply bg-blush text-charcoal;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Script display text, e.g. the couple's names. */
+  .text-script {
+    @apply font-script font-normal;
+    line-height: 1.1;
+  }
+
+  /* Small spaced capitals used above headings, e.g. "SAVE THE DATE". */
+  .eyebrow {
+    @apply font-sans text-xs font-bold tracking-[0.3em] text-gold-deep uppercase;
+  }
+}
+
+/*
+ * Scroll fade-in (src/scripts/reveal.ts). Elements start hidden only when
+ * JavaScript is running (.js on <html>) and reduced motion is not requested.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.9s var(--ease-gentle),
+      transform 0.9s var(--ease-gentle);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}

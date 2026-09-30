@@ -1,0 +1,54 @@
+---
+/**
+ * Optional background music button. Off by default and never autoplays:
+ * the audio file is not even downloaded until a guest taps play.
+ * Switch it on with music.enabled in wedding.ts.
+ */
+import Icon from './ui/Icon.astro';
+import { wedding } from '../data/wedding';
+
+const { music } = wedding;
+---
+
+{
+  music.enabled && (
+    <>
+      <audio id="bg-music" src={music.src} preload="none" loop />
+      <button
+        type="button"
+        id="music-toggle"
+        aria-pressed="false"
+        class="group fixed right-4 bottom-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-champagne bg-ivory/95 text-gold-deep shadow-[0_2px_12px_rgb(46_43_42/0.15)] backdrop-blur-sm sm:right-6 sm:bottom-6"
+      >
+        <span class="sr-only">Background music: {music.title}</span>
+        <span class="group-aria-pressed:hidden">
+          <Icon name="music" />
+        </span>
+        <span class="hidden group-aria-pressed:block">
+          <Icon name="pause" />
+        </span>
+      </button>
+    </>
+  )
+}
+
+<script>
+  const audio = document.getElementById('bg-music') as HTMLAudioElement | null;
+  const toggle = document.getElementById('music-toggle');
+
+  if (audio && toggle) {
+    toggle.addEventListener('click', async () => {
+      if (audio.paused) {
+        try {
+          await audio.play();
+        } catch {
+          return;
+        }
+      } else {
+        audio.pause();
+      }
+    });
+    audio.addEventListener('play', () => toggle.setAttribute('aria-pressed', 'true'));
+    audio.addEventListener('pause', () => toggle.setAttribute('aria-pressed', 'false'));
+  }
+</script>

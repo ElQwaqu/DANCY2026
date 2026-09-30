@@ -1,0 +1,10 @@
+{
+  // Treat CSS files as Tailwind CSS so @theme, @apply and friends are understood.
+  // Needs the "Tailwind CSS IntelliSense" extension (recommended in extensions.json).
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  // Fallback if the extension is not installed: stop the built-in CSS checker
+  // flagging Tailwind's at-rules as unknown.
+  "css.lint.unknownAtRules": "ignore"
+}

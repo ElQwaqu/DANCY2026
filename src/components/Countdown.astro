@@ -1,0 +1,70 @@
+---
+/**
+ * Live countdown to the wedding in gold serif numerals.
+ * Space is reserved on first paint and the numbers appear once the script runs,
+ * so the layout never jumps. Without JavaScript, the date above it still shows.
+ */
+import { wedding } from '../data/wedding';
+
+const units = [
+  { key: 'days', label: 'Days' },
+  { key: 'hours', label: 'Hours' },
+  { key: 'minutes', label: 'Minutes' },
+  { key: 'seconds', label: 'Seconds' },
+];
+---
+
+<div data-countdown data-target={wedding.weddingDate} class="invisible">
+  <ul data-countdown-units class="flex justify-center gap-2 sm:gap-4" role="timer" aria-label="Countdown to the wedding">
+    {
+      units.map(({ key, label }) => (
+        <li class="flex w-18 flex-col items-center border border-champagne/70 bg-charcoal/20 px-1 py-3 sm:w-24 sm:py-4">
+          <span data-unit={key} class="font-serif text-4xl leading-none text-champagne tabular-nums sm:text-5xl">
+            00
+          </span>
+          <span class="mt-2 text-[0.65rem] tracking-[0.2em] text-ivory/85 uppercase sm:text-xs">{label}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <p data-countdown-done hidden class="font-serif text-3xl text-champagne italic sm:text-4xl">
+    {wedding.hero.countdownDoneText}
+  </p>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-countdown]');
+
+  if (root?.dataset.target) {
+    const target = Date.parse(root.dataset.target);
+    const unitsList = root.querySelector<HTMLElement>('[data-countdown-units]')!;
+    const done = root.querySelector<HTMLElement>('[data-countdown-done]')!;
+    const fields = {
+      days: root.querySelector('[data-unit="days"]')!,
+      hours: root.querySelector('[data-unit="hours"]')!,
+      minutes: root.querySelector('[data-unit="minutes"]')!,
+      seconds: root.querySelector('[data-unit="seconds"]')!,
+    };
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    let timer: number | undefined;
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        unitsList.hidden = true;
+        done.hidden = false;
+        window.clearInterval(timer);
+        return;
+      }
+      const s = Math.floor(diff / 1000);
+      fields.days.textContent = String(Math.floor(s / 86400));
+      fields.hours.textContent = pad(Math.floor((s % 86400) / 3600));
+      fields.minutes.textContent = pad(Math.floor((s % 3600) / 60));
+      fields.seconds.textContent = pad(s % 60);
+    };
+
+    tick();
+    root.classList.remove('invisible');
+    timer = window.setInterval(tick, 1000);
+  }
+</script>

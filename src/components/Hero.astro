@@ -1,0 +1,84 @@
+---
+/** Full-screen hero: couple photo, names in script, date and live countdown. */
+import { Picture } from 'astro:assets';
+import Countdown from './Countdown.astro';
+import FloralCorner from './ui/FloralCorner.astro';
+import { wedding } from '../data/wedding';
+import { formatDate } from '../lib/format';
+import { enabledSections } from '../lib/sections';
+
+const { couple, hero, weddingDate } = wedding;
+const firstSection = enabledSections()[0];
+const cornerSize = 'absolute h-32 w-32 sm:h-48 sm:w-48 lg:h-60 lg:w-60';
+---
+
+<section id="home" aria-labelledby="hero-heading" class="relative isolate flex min-h-svh flex-col overflow-hidden bg-charcoal text-ivory">
+  <Picture
+    src={hero.photo.src}
+    alt={hero.photo.alt}
+    formats={['avif', 'webp']}
+    widths={[640, 960, 1280, 1920, 2400]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-0 -z-20 h-full w-full object-cover"
+    style={`object-position: ${hero.photoPosition}`}
+  />
+  <!-- Soft shading so the text stays readable on any photo. -->
+  <div class="absolute inset-0 -z-10 bg-linear-to-b from-charcoal/45 via-charcoal/25 to-charcoal/75" aria-hidden="true"></div>
+
+  <!-- Printed-invitation frame with floral corners, sitting below the menu bar. -->
+  <div class="pointer-events-none absolute inset-x-3 top-16 bottom-3 border border-champagne-light/50 sm:inset-x-5 sm:bottom-5" aria-hidden="true"></div>
+  <FloralCorner position="top-left" tone="light" class={`${cornerSize} top-14 left-1 sm:left-3`} />
+  <FloralCorner position="top-right" tone="light" class={`${cornerSize} top-14 right-1 sm:right-3`} />
+  <FloralCorner position="bottom-left" tone="light" class={`${cornerSize} bottom-1 left-1 sm:bottom-3 sm:left-3`} />
+  <FloralCorner position="bottom-right" tone="light" class={`${cornerSize} right-1 bottom-1 sm:right-3 sm:bottom-3`} />
+
+  <div class="relative mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-end px-6 pt-32 pb-24 text-center sm:justify-center sm:px-8 sm:pb-28">
+    <p class="text-xs font-bold tracking-[0.3em] text-ivory/90 uppercase" data-reveal>{hero.eyebrow}</p>
+
+    <h1 id="hero-heading" class="mt-5 text-ivory" data-reveal style="--reveal-delay: 0.1s">
+      <span class="text-script flex flex-col items-center text-7xl sm:flex-row sm:gap-5 sm:text-8xl lg:text-9xl">
+        <span>{couple.partner1}</span>
+        <span class="my-1 font-serif text-5xl text-champagne italic sm:my-0 sm:text-6xl lg:text-7xl">&amp;</span>
+        <span>{couple.partner2}</span>
+      </span>
+    </h1>
+
+    <p class="mt-5 font-serif text-xl text-ivory/95 italic sm:text-2xl" data-reveal style="--reveal-delay: 0.2s">
+      {hero.tagline}
+    </p>
+
+    <p class="mt-6 flex items-center gap-4 font-serif text-lg tracking-[0.1em] uppercase sm:text-xl sm:tracking-[0.15em]" data-reveal style="--reveal-delay: 0.3s">
+      <span class="hidden h-px w-12 bg-champagne sm:block" aria-hidden="true"></span>
+      <time datetime={weddingDate}>{formatDate(weddingDate)}</time>
+      <span class="hidden h-px w-12 bg-champagne sm:block" aria-hidden="true"></span>
+    </p>
+
+    <div class="mt-8" data-reveal style="--reveal-delay: 0.4s">
+      <Countdown />
+    </div>
+
+    {
+      hero.note && (
+        <p class="mt-6 text-xs font-bold tracking-[0.3em] text-ivory/90 uppercase" data-reveal style="--reveal-delay: 0.5s">
+          {hero.note}
+        </p>
+      )
+    }
+  </div>
+
+  {
+    firstSection && (
+      <a
+        href={`#${firstSection.id}`}
+        class="absolute bottom-6 left-1/2 flex h-12 w-12 -translate-x-1/2 items-center justify-center text-ivory/90 hover:text-champagne sm:bottom-8"
+        aria-label={`Scroll to ${firstSection.navLabel}`}
+      >
+        <svg viewBox="0 0 24 24" class="h-6 w-6 motion-safe:animate-bounce" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+    )
+  }
+</section>

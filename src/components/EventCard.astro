@@ -1,0 +1,70 @@
+---
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import VenueMap from './VenueMap.astro';
+import type { WeddingEvent } from '../data/types';
+import { formatDate, formatTimeRange } from '../lib/format';
+import { calendarFileName, calendarHref, directionsHref } from '../lib/events';
+
+interface Props {
+  event: WeddingEvent;
+  /** Set to false when the venue and map are shown once for all events. */
+  showVenue?: boolean;
+}
+
+const { event, showVenue = true } = Astro.props;
+const { venue } = event;
+---
+
+<article
+  class="flex h-full flex-col border border-champagne-light bg-ivory p-6 text-center shadow-[0_2px_24px_rgb(46_43_42/0.05)] outline outline-champagne-light/70 -outline-offset-8 sm:p-8"
+>
+  <h3 class="text-3xl">{event.name}</h3>
+  {event.description && <p class="mt-2 text-charcoal-soft">{event.description}</p>}
+
+  <dl class="mt-6 space-y-3 text-left">
+    <div class="flex gap-3">
+      <dt class="text-gold-deep"><Icon name="calendar" /><span class="sr-only">Date</span></dt>
+      <dd><time datetime={event.start}>{formatDate(event.start)}</time></dd>
+    </div>
+    <div class="flex gap-3">
+      <dt class="text-gold-deep"><Icon name="clock" /><span class="sr-only">Time</span></dt>
+      <dd>{formatTimeRange(event.start, event.end)}</dd>
+    </div>
+    {
+      showVenue && (
+        <div class="flex gap-3">
+          <dt class="text-gold-deep">
+            <Icon name="pin" />
+            <span class="sr-only">Venue</span>
+          </dt>
+          <dd>
+            <span class="font-bold">{venue.name}</span>
+            {venue.address && <address class="text-charcoal-soft not-italic">{venue.address}</address>}
+          </dd>
+        </div>
+      )
+    }
+  </dl>
+
+  {
+    showVenue && (
+      <div class="mt-6">
+        <VenueMap venue={venue} />
+      </div>
+    )
+  }
+
+  <div class="mt-6 flex flex-col gap-3 pt-0 lg:mt-auto lg:pt-6">
+    {
+      showVenue && (
+        <Button href={directionsHref(venue)} icon="directions" target="_blank" rel="noopener noreferrer">
+          Get directions<span class="sr-only"> to {venue.name} (opens Google Maps)</span>
+        </Button>
+      )
+    }
+    <Button href={calendarHref(event)} download={calendarFileName(event)} variant="outline" icon="calendar-plus">
+      Add to calendar<span class="sr-only">: {event.name}</span>
+    </Button>
+  </div>
+</article>

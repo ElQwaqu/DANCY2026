@@ -1,0 +1,33 @@
+---
+import FloralCorner from './ui/FloralCorner.astro';
+import FloralDivider from './ui/FloralDivider.astro';
+import { wedding } from '../data/wedding';
+import { formatShortDate } from '../lib/format';
+
+const { couple, footer, weddingDate } = wedding;
+---
+
+<footer class="relative overflow-hidden bg-blush/60 px-6 pt-20 pb-16 text-center">
+  <FloralCorner position="bottom-left" class="absolute bottom-0 left-0 h-28 w-28 opacity-70 sm:h-40 sm:w-40" />
+  <FloralCorner position="bottom-right" class="absolute right-0 bottom-0 h-28 w-28 opacity-70 sm:h-40 sm:w-40" />
+  <div class="relative mx-auto max-w-xl" data-reveal>
+    <FloralDivider />
+    <p class="mt-6 font-serif text-xl italic sm:text-2xl">{footer.closingLine}</p>
+    <p class="text-script mt-6 text-5xl whitespace-nowrap text-gold-deep sm:text-7xl">{couple.displayNames}</p>
+    <p class="mt-4 text-sm tracking-[0.3em] uppercase">
+      <time datetime={weddingDate}>{formatShortDate(weddingDate)}</time>
+    </p>
+    {
+      couple.hashtags.length > 0 && (
+        <ul class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-10" aria-label="Wedding hashtags">
+          {couple.hashtags.map(({ tag, meaning }) => (
+            <li>
+              <span class="font-bold text-rose-deep">{tag}</span>
+              {meaning && <span class="block font-serif text-lg italic">{meaning}</span>}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</footer>

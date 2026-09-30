@@ -1,0 +1,138 @@
+---
+/**
+ * Sticky top menu. Transparent over the hero photo, solid ivory once scrolled.
+ * On phones and tablets the links open in a full-screen <dialog>, which gives
+ * focus trapping and Escape-to-close for free.
+ */
+import { wedding } from '../data/wedding';
+import { enabledSections } from '../lib/sections';
+
+const links = enabledSections().map(({ id, navLabel }) => ({ href: `#${id}`, label: navLabel }));
+const { partner1, partner2 } = wedding.couple;
+const monogram = `${partner1.charAt(0)} & ${partner2.charAt(0)}`;
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 border-b border-champagne-light/70 bg-ivory/95 text-charcoal shadow-[0_1px_12px_rgb(46_43_42/0.06)] backdrop-blur-sm transition-colors duration-300 motion-reduce:transition-none data-top:border-transparent data-top:bg-transparent data-top:bg-linear-to-b data-top:from-charcoal/50 data-top:to-transparent data-top:text-ivory data-top:shadow-none data-top:backdrop-blur-none"
+>
+  <nav aria-label="Main" class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+    <a href="#home" class="text-script text-3xl leading-none" aria-label={`${partner1} and ${partner2}, back to top`}>
+      {monogram}
+    </a>
+
+    <ul class="hidden items-center gap-7 lg:flex">
+      {
+        links.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              data-nav-link
+              class="relative py-2 text-xs font-bold tracking-[0.2em] uppercase after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100 aria-[current=location]:after:scale-x-100"
+            >
+              {label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <button
+      type="button"
+      id="menu-open"
+      class="-mr-2 flex h-12 items-center gap-2 px-2 text-xs font-bold tracking-[0.2em] uppercase lg:hidden"
+      aria-haspopup="dialog"
+      aria-controls="mobile-menu"
+      aria-expanded="false"
+    >
+      Menu
+      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+        <path d="M4 8h16M4 16h16" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </nav>
+</header>
+
+<!-- Sets the transparent state before first paint so the bar does not flash. -->
+<script is:inline>
+  if (window.scrollY < 40) document.getElementById('site-header').setAttribute('data-top', '');
+</script>
+
+<dialog
+  id="mobile-menu"
+  aria-label="Menu"
+  class="m-0 h-dvh max-h-none w-full max-w-none bg-ivory p-0 text-charcoal backdrop:bg-charcoal/40 open:flex open:flex-col motion-safe:open:animate-menu-in"
+>
+  <div class="flex h-16 items-center justify-between px-5 sm:px-8">
+    <span class="text-script text-3xl leading-none text-gold-deep" aria-hidden="true">{monogram}</span>
+    <button type="button" id="menu-close" class="-mr-2 flex h-12 w-12 items-center justify-center" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+  <ul class="flex flex-1 flex-col items-center justify-center gap-1 pb-16">
+    {
+      links.map(({ href, label }) => (
+        <li>
+          <a href={href} data-menu-link class="block px-6 py-3 font-serif text-3xl hover:text-gold-deep">
+            {label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</dialog>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const menu = document.getElementById('mobile-menu') as HTMLDialogElement;
+  const openButton = document.getElementById('menu-open')!;
+
+  // Transparent over the hero photo, solid everywhere else.
+  const hero = document.getElementById('home');
+  let ticking = false;
+  const updateHeader = () => {
+    const overHero = hero ? window.scrollY < hero.offsetHeight - header.offsetHeight * 2 : false;
+    header.toggleAttribute('data-top', overHero);
+    ticking = false;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) requestAnimationFrame(updateHeader);
+      ticking = true;
+    },
+    { passive: true },
+  );
+  updateHeader();
+
+  // Mobile menu.
+  openButton.addEventListener('click', () => {
+    menu.showModal();
+    openButton.setAttribute('aria-expanded', 'true');
+  });
+  menu.addEventListener('close', () => openButton.setAttribute('aria-expanded', 'false'));
+  document.getElementById('menu-close')!.addEventListener('click', () => menu.close());
+  menu.querySelectorAll('[data-menu-link]').forEach((link) => link.addEventListener('click', () => menu.close()));
+  // Close when the window grows to desktop width.
+  matchMedia('(min-width: 64rem)').addEventListener('change', (e) => e.matches && menu.close());
+
+  // Underline the menu link for the section currently on screen.
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+  const sections = navLinks
+    .map((link) => document.querySelector<HTMLElement>(link.hash))
+    .filter((el): el is HTMLElement => el !== null);
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        navLinks.forEach((link) =>
+          link.hash === `#${entry.target.id}` ? link.setAttribute('aria-current', 'location') : link.removeAttribute('aria-current'),
+        );
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px' },
+  );
+  sections.forEach((section) => spy.observe(section));
+</script>

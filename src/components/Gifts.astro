@@ -1,0 +1,87 @@
+---
+/** Gifts: a gentle message, Mobile Money details with a copy button, and optional registry links. */
+import Button from './ui/Button.astro';
+import Icon from './ui/Icon.astro';
+import Section from './ui/Section.astro';
+import { wedding } from '../data/wedding';
+import { digitsOnly, formatLocal } from '../lib/phone';
+import type { SectionProps } from '../lib/sections';
+
+type Props = SectionProps;
+const { tone } = Astro.props;
+const { message, momo, registry } = wedding.gifts;
+---
+
+<Section id="gifts" tone={tone}>
+  <div class="mx-auto max-w-xl text-center" data-reveal>
+    <p class="font-serif text-2xl italic">{message}</p>
+
+    {
+      momo && (
+        <div class="mt-10 border border-champagne-light bg-ivory px-6 py-8 outline outline-champagne-light/70 -outline-offset-8">
+          <Icon name="gift" class="mx-auto h-7 w-7 text-gold-deep" />
+          <p class="eyebrow mt-4">{momo.network}</p>
+          <p class="mt-3 text-charcoal-soft">{momo.accountName}</p>
+          <p class="mt-1 font-serif text-3xl tracking-wider select-all tabular-nums">{formatLocal(momo.number)}</p>
+          <Button class="mt-6 w-full sm:w-auto" icon="copy" data-copy={digitsOnly(momo.number)}>
+            <span data-copy-label>Copy number</span>
+          </Button>
+          <p class="sr-only" role="status" data-copy-status></p>
+        </div>
+      )
+    }
+
+    {
+      registry.length > 0 && (
+        <ul class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          {registry.map((link) => (
+            <li>
+              <Button href={link.url} variant="outline" icon="link" target="_blank" rel="noopener noreferrer">
+                {link.label}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</Section>
+
+<script>
+  async function copyText(text: string) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    // Fallback for older phones and non-HTTPS previews.
+    const field = Object.assign(document.createElement('textarea'), { value: text });
+    field.setAttribute('readonly', '');
+    field.style.cssText = 'position:fixed;opacity:0';
+    document.body.append(field);
+    field.select();
+    document.execCommand('copy');
+    field.remove();
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    const label = button.querySelector<HTMLElement>('[data-copy-label]')!;
+    const status = button.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    const original = label.textContent;
+    let timer: number | undefined;
+
+    button.addEventListener('click', async () => {
+      try {
+        await copyText(button.dataset.copy ?? '');
+        label.textContent = 'Copied';
+        if (status) status.textContent = 'Number copied to clipboard';
+      } catch {
+        label.textContent = 'Please copy manually';
+      }
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        label.textContent = original;
+        if (status) status.textContent = '';
+      }, 2500);
+    });
+  });
+</script>

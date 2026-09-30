@@ -1,0 +1,27 @@
+---
+/** One RSVP contact with large Call and WhatsApp buttons. */
+import Button from './ui/Button.astro';
+import type { Contact } from '../data/types';
+import { formatInternational, telHref, whatsAppHref } from '../lib/phone';
+
+interface Props {
+  contact: Contact;
+  message: string;
+}
+
+const { contact, message } = Astro.props;
+---
+
+<article class="flex h-full flex-col border border-champagne-light bg-ivory p-6 text-center outline outline-champagne-light/70 -outline-offset-8 sm:p-8">
+  {contact.label && <p class="eyebrow">{contact.label}</p>}
+  <h3 class="mt-2 text-3xl">{contact.name}</h3>
+  <p class="mt-2 text-charcoal-soft tabular-nums">{formatInternational(contact.phone)}</p>
+  <div class="mt-6 grid grid-cols-2 gap-3 pt-0 sm:mt-auto sm:pt-6">
+    <Button href={telHref(contact.phone)} variant="outline" icon="phone" compact>
+      Call<span class="sr-only"> {contact.name}</span>
+    </Button>
+    <Button href={whatsAppHref(contact.phone, message)} variant="sage" icon="whatsapp" compact target="_blank" rel="noopener noreferrer">
+      WhatsApp<span class="sr-only"> {contact.name}</span>
+    </Button>
+  </div>
+</article>

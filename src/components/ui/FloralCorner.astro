@@ -1,0 +1,102 @@
+---
+/**
+ * Delicate line-drawn floral spray for framing a corner.
+ * Drawn for the top-left corner and mirrored for the others.
+ */
+import { BUD, LEAF, PETAL, PETAL_ANGLES, place, type Placement } from './floral-shapes';
+
+interface Props {
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  /** "natural" uses sage, rose and gold on light backgrounds; "light" is for use over photos. */
+  tone?: 'natural' | 'light';
+  class?: string;
+}
+
+const { position, tone = 'natural', class: className } = Astro.props;
+
+const flip = {
+  'top-left': '',
+  'top-right': '-scale-x-100',
+  'bottom-left': '-scale-y-100',
+  'bottom-right': '-scale-x-100 -scale-y-100',
+}[position];
+
+const colours =
+  tone === 'light'
+    ? { stem: 'text-ivory/85', flower: 'text-champagne-light', accent: 'text-champagne-light' }
+    : { stem: 'text-sage', flower: 'text-rose', accent: 'text-champagne' };
+
+const stems = [
+  'M2 172C14 118 40 72 86 42S170 8 214 4',
+  'M31 94C52 88 72 94 90 108',
+  'M98 36C106 54 120 64 140 68',
+  'M160 12c6-10 20-8 20 2c-1 8-11 8-12 2',
+  'M14 124c-6-4-8-12-2-16',
+];
+
+const leaves: Placement[] = [
+  [12, 130, -150, 1],
+  [19, 112, -35, 0.9],
+  [40, 78, -155, 0.9],
+  [56, 62, -25, 1],
+  [70, 95, 30, 0.8],
+  [108, 28, -125, 0.85],
+  [128, 21, -15, 0.9],
+  [118, 64, 15, 0.75],
+  [186, 6, -165, 0.7],
+  [198, 5, 15, 0.65],
+];
+
+const flowers: Placement[] = [
+  [74, 50, 10, 1.25],
+  [92, 110, -20, 0.8],
+  [142, 70, 30, 0.9],
+];
+
+const buds: Placement[] = [
+  [30, 96, -60, 0.8],
+  [150, 16, 20, 0.7],
+  [46, 70, -30, 0.7],
+];
+
+const berries: [number, number][] = [
+  [100, 118],
+  [104, 112],
+  [152, 76],
+  [60, 40],
+  [166, 22],
+];
+---
+
+<svg
+  viewBox="0 0 220 220"
+  aria-hidden="true"
+  focusable="false"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class:list={['pointer-events-none', flip, className]}
+>
+  <g class={colours.stem}>
+    {stems.map((d) => <path d={d} vector-effect="non-scaling-stroke" />)}
+    {leaves.map((p) => <path d={LEAF} transform={place(p)} vector-effect="non-scaling-stroke" />)}
+  </g>
+  <g class={colours.flower}>
+    {buds.map((p) => <path d={BUD} transform={place(p)} vector-effect="non-scaling-stroke" />)}
+    {
+      flowers.map((p) => (
+        <g transform={place(p)}>
+          {PETAL_ANGLES.map((a) => (
+            <ellipse cx="0" cy={PETAL.cy} rx={PETAL.rx} ry={PETAL.ry} transform={`rotate(${a})`} vector-effect="non-scaling-stroke" />
+          ))}
+        </g>
+      ))
+    }
+  </g>
+  <g class={colours.accent}>
+    {flowers.map(([x, y]) => <circle cx={x} cy={y} r="2.4" vector-effect="non-scaling-stroke" />)}
+    {berries.map(([x, y]) => <circle cx={x} cy={y} r="1.6" fill="currentColor" stroke="none" />)}
+  </g>
+</svg>

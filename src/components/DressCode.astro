@@ -1,0 +1,44 @@
+---
+/** Dress code: colour swatches plus attire notes. */
+import Section from './ui/Section.astro';
+import { wedding } from '../data/wedding';
+import type { SectionProps } from '../lib/sections';
+
+type Props = SectionProps;
+const { tone } = Astro.props;
+const { summary, swatches, details } = wedding.dressCode;
+---
+
+<Section id="dress-code" tone={tone}>
+  <div class="mx-auto max-w-2xl text-center" data-reveal>
+    <p class="font-serif text-2xl italic">{summary}</p>
+
+    <ul class="mt-10 flex flex-wrap justify-center gap-x-3 gap-y-8 sm:gap-x-10" aria-label="Wedding colours">
+      {
+        swatches.map((swatch) => (
+          <li class="flex w-19 flex-col items-center sm:w-24">
+            <span
+              class="h-16 w-16 rounded-full border border-champagne-light shadow-[inset_0_0_0_4px_rgb(251_247_240)] ring-1 ring-champagne sm:h-20 sm:w-20"
+              style={`background-color: ${swatch.hex}`}
+              aria-hidden="true"
+            />
+            <span class="mt-3 text-sm">{swatch.name}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      details.length > 0 && (
+        <ul class="mt-12 space-y-4 text-left sm:text-center">
+          {details.map((line) => (
+            <li class="flex gap-3 sm:block">
+              <span class="mt-2.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-champagne sm:mr-3 sm:inline-block sm:align-middle sm:mt-0" aria-hidden="true" />
+              <span class="text-charcoal-soft">{line}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</Section>

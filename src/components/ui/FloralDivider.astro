@@ -1,0 +1,45 @@
+---
+/** Small centred floral divider: gold lines, sage leaves and a rose bloom. */
+import { LEAF, PETAL, PETAL_ANGLES, place, type Placement } from './floral-shapes';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const leaves: Placement[] = [
+  [106, 16, 205, 0.75],
+  [106, 16, 155, 0.75],
+  [134, 16, -25, 0.75],
+  [134, 16, 25, 0.75],
+];
+---
+
+<svg
+  viewBox="0 0 240 32"
+  aria-hidden="true"
+  focusable="false"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.2"
+  stroke-linecap="round"
+  class:list={['mx-auto h-8 w-60 max-w-full', className]}
+>
+  <g class="text-champagne">
+    <path d="M4 16H84M156 16H236" vector-effect="non-scaling-stroke" />
+    <circle cx="90" cy="16" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="150" cy="16" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="120" cy="16" r="2" vector-effect="non-scaling-stroke" />
+  </g>
+  <g class="text-sage">
+    {leaves.map((p) => <path d={LEAF} transform={place(p)} vector-effect="non-scaling-stroke" />)}
+  </g>
+  <g class="text-rose" transform="translate(120 16) scale(0.9)">
+    {
+      PETAL_ANGLES.map((a) => (
+        <ellipse cx="0" cy={PETAL.cy} rx={PETAL.rx} ry={PETAL.ry} transform={`rotate(${a})`} vector-effect="non-scaling-stroke" />
+      ))
+    }
+  </g>
+</svg>

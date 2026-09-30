@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Story from '../components/Story.astro';
+import Events from '../components/Events.astro';
+import DressCode from '../components/DressCode.astro';
+import Gallery from '../components/Gallery.astro';
+import Gifts from '../components/Gifts.astro';
+import Faq from '../components/Faq.astro';
+import Rsvp from '../components/Rsvp.astro';
+import Footer from '../components/Footer.astro';
+import MusicToggle from '../components/MusicToggle.astro';
+import type { SectionId } from '../data/types';
+import { enabledSections } from '../lib/sections';
+
+// Page order and on/off switches come from `sections` in wedding.ts.
+const components: Record<SectionId, typeof Story> = {
+  story: Story,
+  events: Events,
+  'dress-code': DressCode,
+  gallery: Gallery,
+  gifts: Gifts,
+  faq: Faq,
+  rsvp: Rsvp,
+};
+const sections = enabledSections();
+---
+
+<BaseLayout>
+  <Nav />
+  <main id="main" tabindex="-1" class="outline-none">
+    <Hero />
+    {
+      sections.map(({ id }, i) => {
+        const Component = components[id];
+        return <Component tone={i % 2 === 0 ? 'ivory' : 'cream'} />;
+      })
+    }
+  </main>
+  <Footer />
+  <MusicToggle />
+</BaseLayout>

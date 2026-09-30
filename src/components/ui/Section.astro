@@ -1,0 +1,34 @@
+---
+/** Shared section shell: anchor id, floral divider, heading and optional intro from wedding.ts. */
+import FloralDivider from './FloralDivider.astro';
+import { wedding } from '../../data/wedding';
+import type { SectionId } from '../../data/types';
+import type { Tone } from '../../lib/sections';
+
+interface Props {
+  id: SectionId;
+  tone?: Tone;
+  class?: string;
+}
+
+const { id, tone = 'ivory', class: className } = Astro.props;
+const { title, intro } = wedding.sections[id];
+const headingId = `${id}-heading`;
+---
+
+<section
+  id={id}
+  aria-labelledby={headingId}
+  class:list={['px-5 py-20 sm:px-8 sm:py-28', tone === 'cream' ? 'bg-cream' : 'bg-ivory', className]}
+>
+  <div class="mx-auto max-w-5xl">
+    <header class="text-center" data-reveal>
+      <FloralDivider />
+      <h2 id={headingId} class="mt-5 text-4xl sm:text-5xl">{title}</h2>
+      {intro && <p class="mx-auto mt-4 max-w-xl text-charcoal-soft">{intro}</p>}
+    </header>
+    <div class="mt-12 sm:mt-16">
+      <slot />
+    </div>
+  </div>
+</section>

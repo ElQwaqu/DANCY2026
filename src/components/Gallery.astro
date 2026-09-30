@@ -1,0 +1,136 @@
+---
+/**
+ * Gallery: responsive grid of thumbnails. Tapping one opens a <dialog> lightbox
+ * with previous/next, swipe, arrow keys and Escape to close.
+ */
+import { getImage, Image } from 'astro:assets';
+import Icon from './ui/Icon.astro';
+import Section from './ui/Section.astro';
+import { wedding } from '../data/wedding';
+import type { SectionProps } from '../lib/sections';
+
+type Props = SectionProps;
+const { tone } = Astro.props;
+
+// Larger versions for the lightbox, only downloaded when a photo is opened.
+const photos = await Promise.all(
+  wedding.gallery.map(async (photo) => {
+    const large = await getImage({ src: photo.src, widths: [800, 1200, 1800], format: 'webp' });
+    return { ...photo, largeSrc: large.src, largeSrcSet: large.srcSet.attribute };
+  }),
+);
+---
+
+<Section id="gallery" tone={tone}>
+  <ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
+    {
+      photos.map((photo, i) => (
+        <li data-reveal style={`--reveal-delay: ${(i % 3) * 0.08}s`}>
+          <button
+            type="button"
+            data-lightbox-index={i}
+            data-src={photo.largeSrc}
+            data-srcset={photo.largeSrcSet}
+            data-alt={photo.alt}
+            class="group block w-full overflow-hidden rounded-lg border border-champagne-light bg-cream"
+          >
+            <span class="sr-only">Enlarge photo {i + 1}: </span>
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              widths={[240, 360, 480, 720]}
+              sizes="(min-width: 1024px) 320px, (min-width: 640px) 33vw, 50vw"
+              class="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
+            />
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+</Section>
+
+<dialog
+  id="lightbox"
+  aria-label="Photo viewer"
+  class="m-0 h-dvh max-h-none w-full max-w-none bg-charcoal/95 p-0 text-ivory backdrop:bg-charcoal/80 open:flex open:flex-col"
+>
+  <div class="flex h-16 shrink-0 items-center justify-between px-4">
+    <p data-lightbox-counter class="text-sm tracking-[0.2em]" aria-live="polite"></p>
+    <button type="button" data-lightbox-close class="flex h-12 w-12 items-center justify-center" aria-label="Close photo viewer">
+      <Icon name="close" class="h-7 w-7" />
+    </button>
+  </div>
+  <div data-lightbox-stage class="relative flex min-h-0 flex-1 items-center justify-center px-2 pb-6 sm:px-20">
+    <img data-lightbox-image alt="" sizes="100vw" decoding="async" class="max-h-full max-w-full object-contain" />
+    <button
+      type="button"
+      data-lightbox-prev
+      class="absolute left-1 flex h-12 w-12 items-center justify-center rounded-full bg-charcoal/50 sm:left-4"
+      aria-label="Previous photo"
+    >
+      <Icon name="chevron-left" class="h-7 w-7" />
+    </button>
+    <button
+      type="button"
+      data-lightbox-next
+      class="absolute right-1 flex h-12 w-12 items-center justify-center rounded-full bg-charcoal/50 sm:right-4"
+      aria-label="Next photo"
+    >
+      <Icon name="chevron-right" class="h-7 w-7" />
+    </button>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-lightbox-index]')];
+
+  if (dialog && triggers.length) {
+    const img = dialog.querySelector<HTMLImageElement>('[data-lightbox-image]')!;
+    const counter = dialog.querySelector<HTMLElement>('[data-lightbox-counter]')!;
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + triggers.length) % triggers.length;
+      const { src = '', srcset = '', alt = '' } = triggers[current].dataset;
+      img.srcset = srcset;
+      img.src = src;
+      img.alt = alt;
+      counter.textContent = `${current + 1} / ${triggers.length}`;
+    };
+
+    triggers.forEach((trigger, i) =>
+      trigger.addEventListener('click', () => {
+        show(i);
+        dialog.showModal();
+      }),
+    );
+
+    dialog.querySelector('[data-lightbox-prev]')!.addEventListener('click', () => show(current - 1));
+    dialog.querySelector('[data-lightbox-next]')!.addEventListener('click', () => show(current + 1));
+    dialog.querySelector('[data-lightbox-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => triggers[current].focus());
+
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+
+    // Tap the dark background (not the photo or buttons) to close.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog || (e.target as HTMLElement).hasAttribute('data-lightbox-stage')) dialog.close();
+    });
+
+    // Swipe left or right on phones.
+    let startX = 0;
+    dialog.addEventListener('touchstart', (e) => (startX = e.touches[0].clientX), { passive: true });
+    dialog.addEventListener(
+      'touchend',
+      (e) => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 50) show(dx < 0 ? current + 1 : current - 1);
+      },
+      { passive: true },
+    );
+  }
+</script>

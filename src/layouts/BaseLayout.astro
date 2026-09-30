@@ -1,0 +1,72 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import { wedding } from '../data/wedding';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { meta } = wedding;
+const { title = meta.title, description = meta.description } = Astro.props;
+
+// Link previews (WhatsApp, Facebook, X) need absolute URLs.
+const canonicalUrl = new URL(Astro.url.pathname, meta.siteUrl).href;
+const ogImageUrl = new URL(meta.ogImage, meta.siteUrl).href;
+const ogLocale = meta.lang.replace('-', '_');
+---
+
+<!doctype html>
+<html lang={meta.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="theme-color" content="#fbf7f0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+
+    <!-- Open Graph (WhatsApp, Facebook) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:secure_url" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={meta.ogImageAlt} />
+    <meta property="og:locale" content={ogLocale} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={meta.ogImageAlt} />
+
+    <Font cssVariable="--font-great-vibes" preload />
+    <Font cssVariable="--font-cormorant" preload={[{ weight: 500, style: 'normal' }]} />
+    <Font cssVariable="--font-lato" preload={[{ weight: 400, style: 'normal' }]} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only z-100 rounded-full bg-charcoal px-5 py-3 text-sm text-ivory focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+    >
+      Skip to main content
+    </a>
+    <slot />
+    <script>
+      import '../scripts/reveal.ts';
+    </script>
+  </body>
+</html>
