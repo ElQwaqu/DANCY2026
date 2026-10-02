@@ -33,6 +33,24 @@ npm run preview  # preview the built site
 
 The WhatsApp link preview image is `public/og-image.jpg`. Replace it with a 1200 x 630 px photo.
 
+### Story videos (optional)
+
+Each moment in Our Story shows either a video or a photo. Currently:
+
+| Moment | Shows | File |
+|---|---|---|
+| How we met | Video | `public/videos/how-we-met.mp4` |
+| Our first date | Video | `public/videos/first-date.mp4` |
+| The proposal | Photo | `src/assets/photos/story-3.jpg` |
+
+In `wedding.ts`, a moment with `video: '/videos/...'` shows that video; a moment with `photo` shows a picture. Restart `npm run dev` (or rebuild) after adding a video file.
+
+- Videos play **silently and automatically** in the arch frame while they are on screen, and pause when scrolled away. Phones only allow automatic playback without sound, so a small speaker badge shows; tapping the video opens it full screen **with sound**.
+- Guests who have "reduce motion" or Data Saver switched on see the first frame with a play button instead.
+- No cover photo is needed; the video's first frame is used.
+- Use **MP4** files. iPhone `.mov` videos may not play on Android phones; convert them to MP4 first (for example with HandBrake, "Fast 720p30" preset).
+- Keep each video small (a few MB is ideal), because most guests are on mobile data.
+
 ### Venue maps
 
 Each event in `wedding.ts` has a `mapEmbedUrl` (the interactive map on the card) and a `directionsQuery` (where the "Get directions" button navigates to).

@@ -1,12 +1,25 @@
 ---
-/** Our Story: a simple timeline. Single column on phones, alternating sides on wider screens. */
+/**
+ * Our Story: a simple timeline. Single column on phones, alternating sides on wider screens.
+ * A moment shows a video or a photo in its arch frame. Videos play silently on their own
+ * while on screen (browsers only allow muted autoplay); a tap opens them full screen with sound.
+ */
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { Image } from 'astro:assets';
+import Icon from './ui/Icon.astro';
 import Section from './ui/Section.astro';
 import { wedding } from '../data/wedding';
 import type { SectionProps } from '../lib/sections';
 
 type Props = SectionProps;
 const { tone } = Astro.props;
+
+// A video only switches on once its file is actually in public/.
+const hasFile = (path?: string) => !!path && existsSync(join(process.cwd(), 'public', path));
+const moments = wedding.story.map((moment) => ({ ...moment, video: hasFile(moment.video) ? moment.video : undefined }));
+const anyVideo = moments.some((m) => m.video);
+const media = 'aspect-4/5 w-full rounded-t-full object-cover';
 ---
 
 <Section id="story" tone={tone}>
@@ -14,7 +27,7 @@ const { tone } = Astro.props;
     class="relative space-y-16 before:absolute before:top-2 before:bottom-2 before:left-3 before:w-px before:bg-champagne md:space-y-24 md:before:left-1/2"
   >
     {
-      wedding.story.map((moment, i) => {
+      moments.map((moment, i) => {
         const flip = i % 2 === 1;
         return (
           <li class="relative pl-12 md:grid md:grid-cols-2 md:items-center md:gap-20 md:pl-0" data-reveal>
@@ -22,20 +35,54 @@ const { tone } = Astro.props;
               class="absolute top-1 left-3 h-3 w-3 -translate-x-1/2 rotate-45 border border-champagne bg-champagne md:top-1/2 md:left-1/2 md:-translate-y-1/2"
               aria-hidden="true"
             />
-            <div class:list={['md:px-0', flip && 'md:order-last']}>
+            <div class:list={[flip && 'md:order-last']}>
               <div class="mx-auto max-w-xs rounded-t-full border border-champagne-light p-2">
-                <Image
-                  src={moment.photo.src}
-                  alt={moment.photo.alt}
-                  widths={[320, 480, 640]}
-                  sizes="(min-width: 768px) 320px, calc(100vw - 7rem)"
-                  class="aspect-4/5 w-full rounded-t-full object-cover"
-                />
+                {moment.video ? (
+                  <button
+                    type="button"
+                    data-story-video={moment.video}
+                    data-story-title={moment.title}
+                    class="group relative block w-full rounded-t-full"
+                  >
+                    <span class="sr-only">Play video with sound: {moment.title}</span>
+                    <video
+                      src={`${moment.video}#t=0.1`}
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      aria-hidden="true"
+                      tabindex="-1"
+                      data-story-inline
+                      class:list={[media, 'bg-cream']}
+                    />
+                    {/* Play icon: shown until the silent loop starts (or always, if autoplay is off). */}
+                    <span class="absolute inset-0 flex items-center justify-center rounded-t-full transition-opacity duration-500 group-data-playing:opacity-0">
+                      <span class="flex h-16 w-16 items-center justify-center rounded-full border border-champagne-light bg-ivory/90 text-gold-deep shadow-lg">
+                        <Icon name="play" class="ml-1 h-7 w-7 fill-current" />
+                      </span>
+                    </span>
+                    {/* Sound badge: hints that a tap plays it with sound. */}
+                    <span class="absolute right-3 bottom-3 flex h-10 w-10 items-center justify-center rounded-full bg-charcoal/55 text-ivory opacity-0 transition-opacity duration-500 group-data-playing:opacity-100">
+                      <Icon name="sound" class="h-5 w-5" />
+                    </span>
+                  </button>
+                ) : (
+                  moment.photo && (
+                    <Image
+                      src={moment.photo.src}
+                      alt={moment.photo.alt}
+                      widths={[320, 480, 640]}
+                      sizes="(min-width: 768px) 320px, calc(100vw - 7rem)"
+                      class={media}
+                    />
+                  )
+                )}
               </div>
             </div>
             <div class:list={['mt-6 md:mt-0', flip ? 'md:text-right' : 'md:text-left']}>
-              <p class="eyebrow">{moment.date}</p>
-              <h3 class="mt-2 text-3xl">{moment.title}</h3>
+              {moment.date && <p class="eyebrow">{moment.date}</p>}
+              <h3 class:list={['text-3xl', moment.date && 'mt-2']}>{moment.title}</h3>
               <p class="mt-3 text-charcoal-soft">{moment.text}</p>
             </div>
           </li>
@@ -44,3 +91,104 @@ const { tone } = Astro.props;
     }
   </ol>
 </Section>
+
+{
+  anyVideo && (
+    <dialog
+      id="story-video"
+      aria-label="Video"
+      class="m-0 h-dvh max-h-none w-full max-w-none bg-charcoal/95 p-0 text-ivory backdrop:bg-charcoal/80 open:flex open:flex-col"
+    >
+      <div class="flex h-16 shrink-0 items-center justify-between px-4">
+        <p data-story-video-title class="font-serif text-xl" />
+        <button type="button" data-story-video-close class="flex h-12 w-12 items-center justify-center" aria-label="Close video">
+          <Icon name="close" class="h-7 w-7" />
+        </button>
+      </div>
+      <div class="flex min-h-0 flex-1 items-center justify-center px-2 pb-6 sm:px-8">
+        <video controls playsinline preload="none" class="max-h-full max-w-full bg-charcoal object-contain" />
+      </div>
+    </dialog>
+  )
+}
+
+<script>
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-story-video]')];
+  const dialog = document.getElementById('story-video') as HTMLDialogElement | null;
+
+  // Silent autoplay while on screen, unless the guest prefers reduced motion or has Data Saver on.
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  const autoplay = !matchMedia('(prefers-reduced-motion: reduce)').matches && !saveData;
+  const visible = new Set<HTMLVideoElement>();
+
+  const inlineOf = (button: HTMLElement) => button.querySelector<HTMLVideoElement>('[data-story-inline]')!;
+  const playInline = (video: HTMLVideoElement) => {
+    if (!autoplay || dialog?.open) return;
+    video.muted = true;
+    video.play().catch(() => {
+      /* Autoplay blocked (e.g. low-power mode): the play icon stays visible. */
+    });
+  };
+
+  buttons.forEach((button) => {
+    const video = inlineOf(button);
+    video.addEventListener('playing', () => button.toggleAttribute('data-playing', true));
+    video.addEventListener('pause', () => button.toggleAttribute('data-playing', false));
+  });
+
+  if (autoplay && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting) {
+            visible.add(video);
+            playInline(video);
+          } else {
+            visible.delete(video);
+            video.pause();
+          }
+        }
+      },
+      { threshold: 0.4 },
+    );
+    buttons.forEach((button) => observer.observe(inlineOf(button)));
+  }
+
+  // Tap: full screen with sound and controls.
+  if (dialog) {
+    const player = dialog.querySelector('video')!;
+    const title = dialog.querySelector<HTMLElement>('[data-story-video-title]')!;
+    let trigger: HTMLButtonElement | null = null;
+
+    buttons.forEach((button) =>
+      button.addEventListener('click', () => {
+        trigger = button;
+        const inline = inlineOf(button);
+        inline.pause();
+        title.textContent = button.dataset.storyTitle ?? '';
+        player.src = button.dataset.storyVideo ?? '';
+        dialog.showModal();
+        // Continue from where the silent loop was.
+        player.addEventListener('loadedmetadata', () => (player.currentTime = inline.currentTime), { once: true });
+        player.muted = false;
+        player.play().catch(() => {
+          /* Some phones need a second tap on the player; controls are visible. */
+        });
+      }),
+    );
+
+    dialog.querySelector('[data-story-video-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener('close', () => {
+      player.pause();
+      player.removeAttribute('src');
+      player.load();
+      if (trigger) {
+        trigger.focus();
+        const inline = inlineOf(trigger);
+        if (visible.has(inline)) playInline(inline);
+      }
+    });
+  }
+</script>

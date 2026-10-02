@@ -11,9 +11,7 @@
 import type { Venue, WeddingData } from './types';
 
 import heroPhoto from '../assets/photos/hero.jpg'; // TODO: replace with the real hero photo (landscape, at least 2000px wide)
-import story1 from '../assets/photos/story-1.jpg'; // TODO: real photo
-import story2 from '../assets/photos/story-2.jpg'; // TODO: real photo
-import story3 from '../assets/photos/story-3.jpg'; // TODO: real photo
+import story3 from '../assets/photos/story-3.jpg'; // The proposal photo
 import gallery1 from '../assets/photos/gallery/gallery-1.jpg'; // TODO: real gallery photos
 import gallery2 from '../assets/photos/gallery/gallery-2.jpg';
 import gallery3 from '../assets/photos/gallery/gallery-3.jpg';
@@ -97,25 +95,27 @@ export const wedding: WeddingData = {
     },
   },
 
-  // TODO: replace with the couple's real story (2 to 3 moments work best).
+  // Each moment shows either a video or a photo in its arch frame.
+  // Videos: MP4 files in public/videos/. They play silently on their own; a tap plays them with sound.
+  // Photos: image files in src/assets/photos/, imported at the top of this file.
   story: [
     {
       title: 'How we met',
-      date: 'March 2019',
-      text: 'We met at a friend\'s birthday dinner in Accra. Nancy laughed at one of Daniel\'s jokes, and he has been trying to make her laugh ever since.',
-      photo: { src: story1, alt: 'Daniel and Nancy at a dinner with friends' },
+      date: '', // Add a date if the couple remembers it; empty hides the line.
+      text: 'Daniel came to Nancy\'s school for a church programme. He noticed her there, asked for her number, and came back to find her. That was where everything started.',
+      video: '/videos/how-we-met.mp4',
     },
     {
       title: 'Our first date',
-      date: 'May 2019',
-      text: 'Coffee turned into lunch, lunch turned into a long walk, and by the end of the day we both knew this was the start of something special.',
-      photo: { src: story2, alt: 'Daniel and Nancy on their first date' },
+      date: '5 May 2024',
+      text: 'We shared our first date at Coconut Grove Beach Resort. Between long conversations and easy laughter, the time slipped away, and we both left knowing this was the beginning of something special.',
+      video: '/videos/first-date.mp4',
     },
     {
       title: 'The proposal',
-      date: 'December 2025',
-      text: 'On a quiet evening surrounded by family, Daniel asked the question. Nancy said yes before he had finished asking.',
-      photo: { src: story3, alt: 'Nancy showing her engagement ring' },
+      date: '12 June 2025',
+      text: 'Over a romantic dinner for two, Daniel asked Nancy to spend forever with him. With a full heart she said yes, and a new chapter of our story began.',
+      photo: { src: story3, alt: 'Daniel and Nancy at their proposal dinner' }, // TODO: describe the real photo
     },
   ],
 

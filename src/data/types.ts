@@ -24,10 +24,17 @@ export interface SectionConfig {
 
 export interface StoryMoment {
   title: string;
-  /** Free text, e.g. "June 2019". */
-  date: string;
+  /** Free text, e.g. "5 May 2024". Leave empty to hide. */
+  date?: string;
   text: string;
-  photo: Photo;
+  /** Shown in the arch frame when the moment has no video. */
+  photo?: Photo;
+  /**
+   * Optional video, as a path inside /public, e.g. "/videos/first-date.mp4".
+   * Plays silently on its own in the arch frame; a tap opens it with sound.
+   * Only used once the file exists, so it is safe to fill in before the file arrives.
+   */
+  video?: string;
 }
 
 export interface Venue {
