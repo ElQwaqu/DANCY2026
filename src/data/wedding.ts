@@ -20,7 +20,6 @@ import gallery5 from '../assets/photos/gallery/gallery-5.jpg';
 import gallery6 from '../assets/photos/gallery/gallery-6.jpg';
 import gallery7 from '../assets/photos/gallery/gallery-7.jpg';
 import gallery8 from '../assets/photos/gallery/gallery-8.jpg';
-import gallery9 from '../assets/photos/gallery/gallery-9.jpg';
 
 // All three events are at the same venue. If an event moves elsewhere, give it
 // its own venue object and the site will show a map on each event card instead.
@@ -173,16 +172,15 @@ export const wedding: WeddingData = {
     { src: gallery6, alt: 'Daniel and Nancy, photo 6' },
     { src: gallery7, alt: 'Daniel and Nancy, photo 7' },
     { src: gallery8, alt: 'Daniel and Nancy, photo 8' },
-    { src: gallery9, alt: 'Daniel and Nancy, photo 9' },
   ],
 
   gifts: {
     message: 'Your presence is the greatest gift of all. If you would like to bless us further, you may do so below.',
-    // TODO: real MoMo details. Delete the whole "momo" block to hide it.
+    // Delete the whole "momo" block to hide it. Number in local format, as guests type it.
     momo: {
       network: 'MTN Mobile Money',
-      accountName: 'Daniel Mensah', // TODO
-      number: '0241234567', // TODO
+      accountName: 'Daniel Aduakye Appiah',
+      number: '0556948800',
     },
     // TODO: add registry links, or leave the list empty to hide them.
     registry: [],
@@ -211,10 +209,10 @@ export const wedding: WeddingData = {
   rsvp: {
     deadline: '', // TODO: add a date from the couple, e.g. 'Saturday 31 October 2026'. Empty hides the line.
     whatsappMessage: "Hello, I'm reaching out about Daniel and Nancy's wedding.",
-    // TODO: real contacts. Numbers in international format without "+" (024 123 4567 becomes 233241234567).
+    // Numbers in international format without "+" (024 123 4567 becomes 233241234567).
     contacts: [
-      { name: 'Kwame Mensah', label: "Groom's family", phone: '233546274349' },
-      { name: 'Akosua Owusu', label: "Bride's family", phone: '233546274349' },
+      { name: 'Josephine Sarpong', label: "Groom's family", phone: '233246026221' },
+      { name: 'Eric Quaye', label: "Bride's family", phone: '233543096151' },
     ],
   },
 
