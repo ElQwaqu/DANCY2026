@@ -63,7 +63,7 @@ export const wedding: WeddingData = {
     },
     photoPosition: 'center 35%',
     countdownDoneText: 'Today we say I do',
-    note: 'Strictly by invitation',
+    // note: 'Strictly by invitation',
   },
 
   sections: {
@@ -72,7 +72,7 @@ export const wedding: WeddingData = {
       enabled: true,
       navLabel: 'Events',
       title: 'Celebrations',
-      intro: 'We would be honoured to have you with us. Our celebration is strictly by invitation.',
+      intro: 'We would be honoured to have you with us. ',
     },
     'dress-code': {
       enabled: true,
@@ -190,12 +190,12 @@ export const wedding: WeddingData = {
   faq: [
     {
       question: 'Can I bring a plus-one?',
-      answer: 'Our celebration is strictly by invitation. Due to limited space, we are unable to accommodate plus-ones.',
+      answer: 'Yes, we are able to accommodate plus-ones.',
     },
-    {
-      question: 'Are children welcome?',
-      answer: 'While we adore your children, we have chosen to keep our wedding an adults-only event.',
-    },
+    // {
+    //   question: 'Are children welcome?',
+    //   answer: 'While we adore your children, we have chosen to keep our wedding an adults-only event.',
+    // },
     // {
     //   question: 'What time should I arrive?',
     //   answer: 'Please arrive about 30 minutes before each event starts so that everyone is seated in good time.',
